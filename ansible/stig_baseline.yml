@@ -1,0 +1,32 @@
+---
+- name: Apply RHEL8 STIG Baseline
+  hosts: all
+  become: yes
+
+  tasks:
+
+    - name: Disable root SSH login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+
+    - name: Enforce password minimum length
+      lineinfile:
+        path: /etc/security/pwquality.conf
+        regexp: '^#?minlen'
+        line: 'minlen = 14'
+
+    - name: Enable auditd
+      service:
+        name: auditd
+        state: started
+        enabled: yes
+
+    - name: Disable telnet service
+      service:
+        name: telnet
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
